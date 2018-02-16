@@ -1,0 +1,25 @@
+{
+  "name": "musereum-token",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "merge": "node node_modules/sol-merger/bin/sol-merger.js './contracts/*.sol' ./merge",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zeppelin-solidity": "^1.6.0"
+  },
+  "devDependencies": {
+    "dotenv": "^5.0.0",
+    "ethereumjs-wallet": "^0.6.0",
+    "sol-merger": "^0.1.2",
+    "truffle-wallet-provider": "^0.0.5"
+  }
+}
