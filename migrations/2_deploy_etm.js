@@ -1,5 +1,5 @@
-var ETM = artifacts.require("./ETM.sol");
+var ETM = artifacts.require('./ETM.sol')
 
-module.exports = function(deployer) {
-  deployer.deploy(ETM);
-};
+module.exports = function (deployer) {
+  deployer.deploy(ETM)
+}
