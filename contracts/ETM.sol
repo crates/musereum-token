@@ -1,5 +1,6 @@
 pragma solidity ^0.4.18;
 import "zeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "./TokenRecipient.sol";
 
 contract ETM is StandardToken {
   string public constant name = "Musereum Token"; // solium-disable-line uppercase
@@ -12,5 +13,14 @@ contract ETM is StandardToken {
     totalSupply_ = INITIAL_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY;
     Transfer(0x0, msg.sender, INITIAL_SUPPLY);
+  }
+
+  function approveAndCall(address _spender, uint _value, bytes _data) public returns (bool) {
+    TokenRecipient spender = TokenRecipient(_spender);
+    if (approve(_spender, _value)) {
+      spender.receiveApproval(msg.sender, _value, this, _data);
+      return true;
+    }
+    return false;
   }
 }
