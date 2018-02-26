@@ -21,7 +21,7 @@ Token Symbol | ETM
 250,000,000 ETM are issued initially plus additional 25,000,000 ETM are issued annually. Of these:
 - 10,000,000 ETM offered at the presale with the price of 0.000020 BTC per ETM (50,000 ETM per BTC);
 - 100,000,000 ETM offered at the main sale as the Musereum native tokens with prices ranging from
-0.000021 to 0.000025 BTC per ETM (47,619 to 40,000 ETM per BTC).
+0.00002100 to 0.00010000 BTC per ETM (47,619 to 10,000 ETM per BTC).
 
 ### Capital to be raised
 - 200 BTC for the 10,000,000 ETM offered at the presale;
