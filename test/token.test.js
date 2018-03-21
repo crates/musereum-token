@@ -1,6 +1,6 @@
 import expectThrow from 'zeppelin-solidity/test/helpers/expectThrow'
 
-const ETM = artifacts.require('./ETM.sol')
+const MusereumToken = artifacts.require('./MusereumToken.sol')
 const MockRecipient = artifacts.require('./MockRecipient.sol')
 
 function numberToBytearray (long, size) {
@@ -39,23 +39,26 @@ function hexToBytes (hexString) {
 
 contract('Token test', accounts => {
   const [owner] = accounts
-  let etm
 
   it('should create new instance of ETM token', async () => {
-    etm = await ETM.new()
+    const instance = await MusereumToken.new()
   })
 
   it('should create 10M tokens for creator', async () => {
-    const balance = await etm.balanceOf(owner)
+    const instance = await MusereumToken.new()
+    
+    const balance = await instance.balanceOf(owner)
     console.log(balance.div(1e18).toString(10))
     assert.equal(10e6, balance.div(1e18).toString(10))
   })
 
   it('should call recipient method', async () => {
-    const recipient = await MockRecipient.new(etm.address)
+    const instance = await MusereumToken.new()
+
+    const recipient = await MockRecipient.new(instance.address)
     const recipientFail = await MockRecipient.new(owner)
 
-    await etm.approveAndCall(recipient.address, 1000 * 1e18, toBytes(100))
-    await expectThrow(etm.approveAndCall(recipientFail.address, 1000 * 1e18, toBytes(100)))
+    await instance.approveAndCall(recipient.address, 1000 * 1e18, toBytes(100))
+    await expectThrow(instance.approveAndCall(recipientFail.address, 1000 * 1e18, toBytes(100)))
   })
 })

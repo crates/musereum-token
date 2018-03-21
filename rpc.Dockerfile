@@ -1,45 +1,14 @@
-NETWORK:= "testrpc"
-MERGE_PATH:=merge
+FROM mhart/alpine-node:8.4
 
-.PHONY: test clean
+RUN apk update && apk upgrade && apk add git && apk add python && apk add make && apk add g++
 
-clean:
-	@echo "Cleaning Project Builds"
-	@rm -rf $(shell pwd)/merged
-	@rm -rf $(shell pwd)/build/contracts
+RUN mkdir -p /usr/src/rpc
+ADD . /usr/src/rpc
 
-merge:
-	@$(shell pwd)/node_modules/.bin/sol-merger $(shell pwd)/contracts/$(value MERGE_FILE) $(shell pwd)/$(value MERGE_PATH)
-	
-compile: node_modules
-	@echo "Begining of compilation"
-	@$(shell pwd)/node_modules/.bin/truffle compile
-	@make merge MERGE_FILE=MusereumToken.sol
+WORKDIR /usr/src/rpc
+RUN npm install -g ganache-cli
 
-migrate: compile
-	@echo "Begin migrate to $(value NETWORK)"
-	@$(shell pwd)/node_modules/.bin/truffle migrate --network=$(value NETWORK)
-
-exec: 
-	@$(shell pwd)/node_modules/.bin/truffle exec $(value EXEC_SCRIPT) --network=$(value NETWORK) 
-
-setup:
-	@echo "Nothing to setup yet..."
-	# @make exec EXEC_SCRIPT=$(shell pwd)/scripts/<name-of-script>.js 
-
-deploy: clean compile migrate setup
-
-node_modules:
-	npm install
-
-test:
-	@$(shell pwd)/node_modules/.bin/truffle --network=$(value NETWORK) test $(value TEST)
-
-test-hard: deploy
-	@$(shell pwd)/node_modules/.bin/truffle --network=$(value NETWORK) test $(value TEST)
-
-testrpc: node_modules
-	@$(shell pwd)/node_modules/.bin/ganache-cli --gasPrice=0x01 --gasLimit=0xfffffffffff \
+CMD ganache-cli --hostname=0.0.0.0 --gasPrice=0x01 --gasLimit=0xfffffffffff \
   	-d="candy maple velvet cake sugar cream honey rich smooth crumble sweet treat" \
 		--account="0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d,100000000000000000000000000000000" \
 		--account="0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1,100000000000000000000000000000000" \
