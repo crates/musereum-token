@@ -5,18 +5,9 @@ require('babel-register')({
   plugins: ['syntax-async-functions', 'transform-regenerator'],
   ignore: /node_modules\/(?!zeppelin-solidity)/
 })
-
 require('dotenv').config()
-const Web3 = require('web3')
-const web3 = new Web3()
 
-let rinkebyProvider, mainnetProvider
 const HDWalletProvider = require('truffle-hdwallet-provider-privkey')
-
-if (!process.env.SOLIDITY_COVERAGE && process.env.PRIVATE_KEY) {
-  rinkebyProvider = new HDWalletProvider(process.env.PRIVATE_KEY, 'https://rinkeby.infura.io')
-  mainnetProvider = new HDWalletProvider(process.env.PRIVATE_KEY, 'https://rinkeby.infura.io')
-}
 
 module.exports = {
   networks: {
@@ -26,16 +17,10 @@ module.exports = {
       network_id: '*' // Match any network id
     },
     rinkeby: {
-      provider: rinkebyProvider,
+      provider: () => new HDWalletProvider(process.env.PRIVATE_KEY, 'https://rinkeby.infura.io'),
       gas: 4600000,
-      gasPrice: web3.toWei('20', 'gwei'),
+      gasPrice: 5e9,
       network_id: '3'
-    },
-    mainnet: {
-      provider: mainnetProvider,
-      gas: 4600000,
-      gasPrice: web3.toWei('20', 'gwei'),
-      network_id: '1'
     }
   }
 }

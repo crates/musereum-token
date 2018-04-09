@@ -3,3 +3,6 @@ node_modules
 .env
 build
 merge
+yarn-error.log
+.DS_Store
+.node-*
