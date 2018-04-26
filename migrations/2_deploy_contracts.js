@@ -1,11 +1,11 @@
-var SafeMath = artifacts.require('./SafeMath.sol');
+var SafeMath = artifacts.require('./SafeMath.sol')
 var MusicToken = artifacts.require('./MusicToken.sol')
 var CopyrightToken = artifacts.require('./CopyrightToken.sol')
 var MusereumToken = artifacts.require('./MusereumToken.sol')
 var MusicICO = artifacts.require('./MusicICO.sol')
 var { duration } = require('./../utils')
 
-function latestTime() {
+function latestTime () {
   return new Promise((resolve, reject) => {
     web3.eth.getBlock('latest', (err, block) => {
       if (err) return reject(err)
@@ -14,35 +14,31 @@ function latestTime() {
   })
 }
 
-module.exports = async (deployer, network, accounts) => {
-
-  await deployer.deploy(SafeMath)
-  await deployer.link(SafeMath, MusicToken)
-  await deployer.link(SafeMath, CopyrightToken)
-  await deployer.link(SafeMath, MusereumToken)
-  await deployer.link(SafeMath, MusicICO)
-  deployer.deploy(MusereumToken).then(async () => {
-    const beneficiary = accounts[0]
-    const firstAccount = accounts[1]
-
+module.exports = (deployer, network, [owner]) => {
+  // proper async wrapper
+  deployer.then(async () => {
     const timestamp = await latestTime()
     const startTime = timestamp
     const endTime = startTime + duration.weeks(1)
-
+    
+    await deployer.deploy(SafeMath)
+    await deployer.link(SafeMath, MusicToken)
+    await deployer.link(SafeMath, CopyrightToken)
+    await deployer.link(SafeMath, MusereumToken)
+    await deployer.link(SafeMath, MusicICO)
     await deployer.deploy(MusicToken)
     await deployer.deploy(CopyrightToken)
     await deployer.deploy(MusereumToken)
-    await deployer.deploy(MusicICO, 
-      beneficiary, 
-      MusicToken.address, CopyrightToken.address, MusereumToken.address, 
-      startTime, endTime
+    await deployer.deploy(MusicICO,
+      owner, MusicToken.address, CopyrightToken.address,
+      MusereumToken.address, startTime, endTime
     )
 
     /* You need to do it yourself because of bug */
 
     // const musicInstance = web3.eth.contract(MusicToken.abi).at(MusicToken.address)
     // const copyrightInstance = web3.eth.contract(CopyrightToken.abi).at(CopyrightToken.address)
-    
+
     // await musicInstance.transferOwnership(MusicICO.address, { from: beneficiary })
     // await copyrightInstance.transferOwnership(MusicICO.address, { from: beneficiary })
 
@@ -56,5 +52,4 @@ module.exports = async (deployer, network, accounts) => {
     // For remix Musereum Token approveAndCall
     // "0x89c9a6875e83a0d1ca9eae08a7581d3d6f6f985d", 500000000000000000000, "0x0000000000000000000000000000000000000000000000000000000000000064"
   })
-
 }
