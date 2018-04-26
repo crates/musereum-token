@@ -62,6 +62,40 @@ contract('MusicICO', function (accounts) {
     assert.equal(5000, balanceCrowdsaleAfter.sub(balanceCrowdsaleBefore).div(1e18).toNumber())
   })
 
+  it('should calculateBonusPercentage', async function () {
+    await increaseTimeTo(this.startTime)
+
+    let bonusPercentage;
+
+    // 0%
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(4999e18) // 499$
+    assert.equal(0, bonusPercentage.div(1e18).toNumber())
+
+    // 10%
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(5000e18) // 500$
+    assert.equal(10, bonusPercentage.div(1e18).toNumber())
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(9999e18) // 999$
+    assert.equal(10, bonusPercentage.div(1e18).toNumber())
+
+    // 20%
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(10000e18) // 1000$
+    assert.equal(20, bonusPercentage.div(1e18).toNumber())
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(29999e18) // 2999$
+    assert.equal(20, bonusPercentage.div(1e18).toNumber())
+
+    // 30%
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(30000e18) // 3000$
+    assert.equal(30, bonusPercentage.div(1e18).toNumber())
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(49999e18) // 4999$
+    assert.equal(30, bonusPercentage.div(1e18).toNumber())
+
+    // 40%
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(50000e18) // 5000$
+    assert.equal(40, bonusPercentage.div(1e18).toNumber())
+    bonusPercentage = await this.crowdsale.calculateBonusPercentage(69999e18) // 6999$
+    assert.equal(40, bonusPercentage.div(1e18).toNumber())
+  })
+
   // it('should withdraw', async function () {
   //   await increaseTimeTo(this.startTime)
   //   await this.etmToken.approveAndCall(this.crowdsale.address, 5000e18, toBytes(100))
@@ -78,7 +112,7 @@ contract('MusicICO', function (accounts) {
   //   assert.equal(0, balanceCrowdsaleAfter.div(1e18).toNumber())
   // })
 
-  it('should redeem', async function () {
+  it('should user_redeem', async function () {
     await increaseTimeTo(this.startTime)
     await this.etmToken.approveAndCall(this.crowdsale.address, 123e18, toBytes(100))
     await this.etmToken.approveAndCall(this.crowdsale.address, 877e18, toBytes(100), { 
@@ -90,7 +124,7 @@ contract('MusicICO', function (accounts) {
     const musicBalanceBefore = await this.musicToken.balanceOf(beneficiary);
     const copyrightBalanceBefore = await this.copyrightToken.balanceOf(beneficiary);
   
-    await this.crowdsale.redeem()
+    await this.crowdsale.user_redeem()
 
     const balanceAfter = await this.etmToken.balanceOf(beneficiary);
     const balanceCrowdsaleAfter = await this.etmToken.balanceOf(this.crowdsale.address);
@@ -103,6 +137,31 @@ contract('MusicICO', function (accounts) {
     assert.equal(12300, copyrightBalanceAfter.sub(copyrightBalanceBefore).div(1e18).toNumber())
   })
 
+  it('should admin_redeem', async function () {
+    await increaseTimeTo(this.startTime)
+    await this.etmToken.approveAndCall(this.crowdsale.address, 123e18, toBytes(100))
+    await this.etmToken.approveAndCall(this.crowdsale.address, 877e18, toBytes(100), { 
+      from: firstAccount
+    })
+    await increaseTimeTo(this.endTime)
+    
+    const balanceBefore = await this.etmToken.balanceOf(firstAccount);
+    const musicBalanceBefore = await this.musicToken.balanceOf(firstAccount);
+    const copyrightBalanceBefore = await this.copyrightToken.balanceOf(firstAccount);
+  
+    await this.crowdsale.admin_redeem(firstAccount)
+
+    const balanceAfter = await this.etmToken.balanceOf(firstAccount);
+    const balanceCrowdsaleAfter = await this.etmToken.balanceOf(this.crowdsale.address);
+    const musicBalanceAfter = await this.musicToken.balanceOf(firstAccount);
+    const copyrightBalanceAfter = await this.copyrightToken.balanceOf(firstAccount);
+
+    assert.equal(0, balanceAfter.sub(balanceBefore).div(1e18).toNumber())
+    assert.equal(1000, balanceCrowdsaleAfter.div(1e18).toNumber())
+    assert.equal(87700, musicBalanceAfter.sub(musicBalanceBefore).div(1e18).toNumber())
+    assert.equal(87700, copyrightBalanceAfter.sub(copyrightBalanceBefore).div(1e18).toNumber())
+  })
+
   it('should finalizeIt', async function () {
     await increaseTimeTo(this.startTime)
     await this.etmToken.approveAndCall(this.crowdsale.address, 123e18, toBytes(100))
@@ -110,7 +169,7 @@ contract('MusicICO', function (accounts) {
       from: firstAccount
     })
     await increaseTimeTo(this.endTime)
-    await this.crowdsale.redeem()
+    await this.crowdsale.user_redeem()
     
     const balanceBefore = await this.etmToken.balanceOf(beneficiary);
     const copyrightOwnerBefore = await this.copyrightToken.owner();

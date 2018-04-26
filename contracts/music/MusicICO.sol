@@ -5,7 +5,7 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./MusicToken.sol";
 import "./CopyrightToken.sol";
 import "./../MusereumToken.sol";
-import "./../TokenRecipient.sol";
+import "./../token/TokenRecipient.sol";
 
 contract MusicICO is TokenRecipient, Ownable {
   using SafeMath for uint;
@@ -33,6 +33,7 @@ contract MusicICO is TokenRecipient, Ownable {
   event Received(address _from, uint _tokens);
   event Collected(address _from, uint _tokens);
   event Redeemed(address _from, uint _tokens);
+  event Finalized(address _newOwner);
 
   modifier only_during_period {require(block.timestamp >= startTime && block.timestamp < endTime); _;}
   modifier only_after_period { require(block.timestamp >= endTime); _; }
@@ -91,7 +92,7 @@ contract MusicICO is TokenRecipient, Ownable {
   }
 
   function calculateBonusPercentage(uint tokens) 
-    internal pure returns (uint bonus) 
+    public pure returns (uint bonus) 
   {
     uint tokensUsd = tokens.div(100 ether).mul(priceUsd);
     bonus = 0;
@@ -112,22 +113,26 @@ contract MusicICO is TokenRecipient, Ownable {
     return bonus;
   }
 
-  function redeem() public only_after_period {
-    require(tokenDeposits[msg.sender] > 0);
-
-    uint percentage = tokenDeposits[msg.sender].mul(100 ether).div(tokenCollected);
-    uint tokens = tokensCap.mul(percentage).div(100 ether); // tokenCollected * 0.(percentage)
-
-    musicToken.mint(msg.sender, tokens);
-    copyrightToken.mint(msg.sender, tokens);
-    tokenDeposits[msg.sender] = 0;
-
-    Redeemed(msg.sender, tokens);
+  function admin_redeem(address _to) public only_after_period onlyOwner {
+    redeem(_to);
   }
 
-  // function withdraw() public only_after_period onlyOwner {
-  //   musereumToken.transfer(beneficiary, musereumToken.balanceOf(this));
-  // }
+  function user_redeem() public only_after_period {
+    redeem(msg.sender);
+  }
+
+  function redeem(address _from) internal {
+    require(tokenDeposits[_from] > 0);
+
+    uint percentage = tokenDeposits[_from].mul(100 ether).div(tokenCollected);
+    uint tokens = tokensCap.mul(percentage).div(100 ether); // tokenCollected * 0.(percentage)
+
+    musicToken.mint(_from, tokens);
+    copyrightToken.mint(_from, tokens);
+    tokenDeposits[_from] = 0;
+
+    Redeemed(_from, tokens);
+  }
 
   function finalizeIt(address _newOwner) public only_after_period onlyOwner {
     require(_newOwner != 0x0);
@@ -136,6 +141,8 @@ contract MusicICO is TokenRecipient, Ownable {
 
     musicToken.transferOwnership(_newOwner);
     copyrightToken.transferOwnership(_newOwner);
+
+    Finalized(_newOwner);
   }
 }
 

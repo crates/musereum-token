@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "../TokenRecipient.sol";
+import "../token/TokenRecipient.sol";
 
 contract MockRecipient is TokenRecipient {
   address public allowedToken;
