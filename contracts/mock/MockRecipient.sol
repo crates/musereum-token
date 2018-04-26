@@ -10,6 +10,9 @@ contract MockRecipient is TokenRecipient {
   }
 
   function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public {
+    _extraData;
+    _from;
+    _value;
     require(_token == allowedToken);
   }
 }

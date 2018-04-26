@@ -2,12 +2,10 @@ pragma solidity ^0.4.19;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./MusicToken.sol";
-import "./CopyrightToken.sol";
-import "./../MusereumToken.sol";
-import "./../token/TokenRecipient.sol";
+import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
+import "./../token/ERC223Recipient.sol";
 
-contract MusicICO is TokenRecipient, Ownable {
+contract MusicICO is ERC223Recipient, Ownable {
   using SafeMath for uint;
 
   string public constant name = "Music Token ICO";
@@ -18,9 +16,9 @@ contract MusicICO is TokenRecipient, Ownable {
   uint public constant priceUsd = 10 ether; // 10 cent
 
   address public beneficiary;
-  MusicToken public musicToken;
-  CopyrightToken public copyrightToken;
-  MusereumToken public musereumToken;
+  MintableToken public musicToken;
+  MintableToken public copyrightToken;
+  StandardToken public musereumToken;
   uint public startTime;
   uint public endTime;
 
@@ -51,9 +49,9 @@ contract MusicICO is TokenRecipient, Ownable {
   ) public {
     beneficiary = _beneficiary;
 
-    musicToken = MusicToken(_musicToken);
-    copyrightToken = CopyrightToken(_copyrightToken);
-    musereumToken = MusereumToken(_musereumToken);
+    musicToken = MintableToken(_musicToken);
+    copyrightToken = MintableToken(_copyrightToken);
+    musereumToken = StandardToken(_musereumToken);
 
     startTime = _startTime;
     endTime = _endTime;
@@ -67,11 +65,11 @@ contract MusicICO is TokenRecipient, Ownable {
     require(false);
   }
 
-  function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) 
+  function tokenFallback(address _from, uint256 _value, bytes _extraData) 
     public only_during_period is_not_dust(_value)
   {
     _extraData;
-    require(_token == address(musereumToken));
+    // require(msg.sender == address(musereumToken));
 
     uint bonus = calculateBonusPercentage(_value);
     uint tokens = _value;
@@ -80,9 +78,9 @@ contract MusicICO is TokenRecipient, Ownable {
       tokens = tokens.add(tokens.mul(bonus).div(100 ether)); // tokens + tokens * 0.(bonus percentage)
     }
 
-    MusereumToken(_token).transferFrom(_from, address(this), _value);
-
-    if (tokenDeposits[_from] == 0) investorCount = investorCount.add(1);
+    if (tokenDeposits[_from] == 0) {
+      investorCount = investorCount.add(1);
+    }
     tokenReceived = tokenReceived.add(_value);
     tokenCollected = tokenCollected.add(tokens);
     tokenDeposits[_from] = tokenDeposits[_from].add(tokens);
@@ -138,10 +136,8 @@ contract MusicICO is TokenRecipient, Ownable {
     require(_newOwner != 0x0);
 
     musereumToken.transfer(beneficiary, musereumToken.balanceOf(this));
-
     musicToken.transferOwnership(_newOwner);
     copyrightToken.transferOwnership(_newOwner);
-
     Finalized(_newOwner);
   }
 }
