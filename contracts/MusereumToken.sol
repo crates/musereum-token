@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
-import "./token/ApproveAndCallToken.sol";
+import "./token/ERC223Token.sol";
 
-contract MusereumToken is ApproveAndCallToken {
+contract MusereumToken is ERC223Token {
   string public constant name = "Musereum Token"; // solium-disable-line uppercase
   string public constant symbol = "ETM"; // solium-disable-line uppercase
   uint8 public constant decimals = 18; // solium-disable-line uppercase
