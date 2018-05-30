@@ -17,7 +17,7 @@ contract ToTheMoonDistribution is DistributeEther {
   uint[] private partions = [
     5000,
     2500,
-    700,
+    800,
     1200
   ];
 
