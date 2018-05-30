@@ -30,8 +30,7 @@ module.exports = (deployer, network, [owner]) => {
     await deployer.deploy(CopyrightToken)
     await deployer.deploy(MusereumToken)
     await deployer.deploy(MusicICO,
-      owner, MusicToken.address, CopyrightToken.address,
-      MusereumToken.address, startTime, endTime
+      owner, MusicToken.address, CopyrightToken.address, startTime, endTime
     )
 
     /* You need to do it yourself because of bug */
