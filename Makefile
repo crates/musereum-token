@@ -9,19 +9,19 @@ clean:
 	@rm -rf $(shell pwd)/build/contracts
 
 merge:
-	@$(shell pwd)/node_modules/.bin/sol-merger $(shell pwd)/contracts/$(value MERGE_FILE) $(shell pwd)/$(value MERGE_PATH)
+	@exec $(shell pwd)/node_modules/.bin/sol-merger $(shell pwd)/contracts/$(value MERGE_FILE) $(shell pwd)/$(value MERGE_PATH)
 	
 compile: node_modules
 	@echo "Begining of compilation"
-	@$(shell pwd)/node_modules/.bin/truffle compile
+	@exec $(shell pwd)/node_modules/.bin/truffle compile
 	@make merge MERGE_FILE=MusereumToken.sol
 
 migrate: compile
 	@echo "Begin migrate to $(value NETWORK)"
-	@$(shell pwd)/node_modules/.bin/truffle migrate --network=$(value NETWORK)
+	@exec $(shell pwd)/node_modules/.bin/truffle migrate --network=$(value NETWORK)
 
 exec: 
-	@$(shell pwd)/node_modules/.bin/truffle exec $(value EXEC_SCRIPT) --network=$(value NETWORK) 
+	@exec $(shell pwd)/node_modules/.bin/truffle exec $(value EXEC_SCRIPT) --network=$(value NETWORK) 
 
 setup:
 	@echo "Nothing to setup yet..."
@@ -33,13 +33,13 @@ node_modules:
 	npm install
 
 test:
-	@$(shell pwd)/node_modules/.bin/truffle --network=$(value NETWORK) test $(value TEST)
+	@exec $(shell pwd)/node_modules/.bin/truffle --network=$(value NETWORK) test $(value TEST)
 
 test-hard: deploy
-	@$(shell pwd)/node_modules/.bin/truffle --network=$(value NETWORK) test $(value TEST)
+	@exec $(shell pwd)/node_modules/.bin/truffle --network=$(value NETWORK) test $(value TEST)
 
 testrpc: node_modules
-	@$(shell pwd)/node_modules/.bin/ganache-cli --gasPrice=0x0 --gasLimit=0xfffffffffff \
+	@exec $(shell pwd)/node_modules/.bin/ganache-cli --gasPrice=0x0 --gasLimit=0xfffffffffff \
   	-d="candy maple velvet cake sugar cream honey rich smooth crumble sweet treat" \
 		--account="0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d,100000000000000000000000000000000" \
 		--account="0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1,100000000000000000000000000000000" \

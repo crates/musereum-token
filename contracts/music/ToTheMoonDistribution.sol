@@ -13,7 +13,7 @@ contract ToTheMoonDistribution is DistributeEther {
     // Musereum
     address(0x0),
     // Dev
-    address(0x0),
+    address(0x0)
   ];
 
   uint[] private partions = [
@@ -24,5 +24,5 @@ contract ToTheMoonDistribution is DistributeEther {
     500   // dev
   ];
 
-  constructor() DistributionEther(recipients, partions) public {}
+  constructor() DistributeEther(recipients, partions) public {}
 }

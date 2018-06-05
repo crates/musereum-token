@@ -10,7 +10,7 @@ contract MusicICO is Ownable {
     string public constant name = "Music Token ICO";
 
     // TODO: change it
-    uint public constant dust = 180 finney;
+    uint public constant dust = 50 finney; // 50$
     uint public constant tokensCap = 100000 * (10 ** uint256(18));
     uint public constant priceUsd = 50000; // 1 ETH -> 500$ 
 
