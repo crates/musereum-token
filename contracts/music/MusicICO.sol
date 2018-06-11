@@ -24,6 +24,16 @@ contract MusicICO is Ownable {
     uint public etherReceived;
     uint public etherCollected;
     mapping (address => uint) public etherDeposits;
+    mapping (address => bool) public investorWhiteList;
+    function addInvestorToWhiteList(address investor) external onlyOwner {
+        require(investor != 0x0 && !investorWhiteList[investor]);
+        investorWhiteList[investor] = true;
+    }
+
+    function removeInvestorFromWhiteList(address investor) external onlyOwner {
+        require(investor != 0x0 && investorWhiteList[investor]);
+        investorWhiteList[investor] = false;
+    }
     
 
     event Received(address _from, uint _value);
@@ -33,7 +43,8 @@ contract MusicICO is Ownable {
 
     modifier only_during_period {require(block.timestamp >= startTime && block.timestamp < endTime); _;}
     modifier only_after_period { require(block.timestamp >= endTime); _; }
-    modifier is_not_dust(uint _value) {require(_value >= dust); _;}
+    modifier is_not_dust(uint _value) { require(_value >= dust); _;}
+    modifier in_white_list(address _beneficiary) { require(investorWhiteList[_beneficiary]); _; }
 
     constructor(
         address _beneficiary,
@@ -59,7 +70,7 @@ contract MusicICO is Ownable {
         buyTokens(msg.sender);
     }
 
-    function buyTokens(address buyer) public payable only_during_period is_not_dust(msg.value) {
+    function buyTokens(address buyer) public payable in_white_list(buyer) only_during_period is_not_dust(msg.value) {
         uint bonus = calculateBonusPercentage(msg.value);
         uint value = msg.value;
         if (bonus > 0) {
